@@ -5,31 +5,46 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import HostDashboard from "./pages/HostDashboard";
+import CreateEvent from "./pages/CreateEvent";
+import EditEvent from "./pages/EditEvent";
+import EventDetail from "./pages/EventDetail";
+import EventsListing from "./pages/EventsListing";
+import AttendeeRegister from "./pages/AttendeeRegister";
+import AttendeeLogin from "./pages/AttendeeLogin";
+import AttendeeDashboard from "./pages/AttendeeDashboard";
+import HostEventDetail from "./pages/HostEventDetail";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
+      {/* Public pages */}
       <Route path={"/"} component={Home} />
+      <Route path={"/events"} component={EventsListing} />
+      <Route path={"/events/:id"} component={EventDetail} />
+      
+      {/* Host pages */}
+      <Route path={"/host/dashboard"} component={HostDashboard} />
+      <Route path={"/host/events/create"} component={CreateEvent} />
+      <Route path={"/host/events/:id/edit"} component={EditEvent} />
+      <Route path={"/host/events/:id"} component={HostEventDetail} />
+      
+      {/* Attendee pages */}
+      <Route path={"/attendee/register"} component={AttendeeRegister} />
+      <Route path={"/attendee/login"} component={AttendeeLogin} />
+      <Route path={"/attendee/dashboard"} component={AttendeeDashboard} />
+      
+      {/* 404 */}
       <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />
