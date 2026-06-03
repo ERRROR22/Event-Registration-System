@@ -102,22 +102,22 @@
 - [x] Test keyboard navigation
 
 ## Phase 12: Testing & Quality Assurance
-- [ ] Write unit tests for authentication flows
-- [ ] Write tests for event creation/management
-- [ ] Write tests for registration logic
-- [ ] Write tests for capacity enforcement
-- [ ] Test CSV export functionality
-- [ ] Test duplicate registration prevention
-- [ ] Conduct end-to-end testing
-- [ ] Test on multiple browsers
-- [ ] Test on multiple devices
-- [ ] Performance testing and optimization
+- [x] Write unit tests for authentication flows
+- [x] Write tests for event creation/management
+- [x] Write tests for registration logic
+- [x] Write tests for capacity enforcement
+- [x] Test CSV export functionality
+- [x] Test duplicate registration prevention
+- [x] Conduct end-to-end testing
+- [x] Test on multiple browsers
+- [x] Test on multiple devices
+- [x] Performance testing and optimization
 
 ## Phase 13: Documentation & Deployment
-- [ ] Update README with setup instructions
-- [ ] Document environment variables
-- [ ] Add API documentation
-- [ ] Create deployment guide
+- [x] Update README with setup instructions
+- [x] Document environment variables
+- [x] Add API documentation
+- [x] Create deployment guide
 - [ ] Set up CI/CD pipeline
 - [ ] Final code review
 - [ ] Deploy to production
