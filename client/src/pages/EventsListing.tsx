@@ -26,15 +26,16 @@ export default function EventsListing() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900">Upcoming Events</h1>
-              <p className="text-slate-600 mt-2">Discover and register for amazing events</p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Upcoming Events</h1>
+              <p className="text-sm sm:text-base text-slate-600 mt-1 md:mt-2">Discover and register for amazing events</p>
             </div>
             <Button
               onClick={() => setLocation("/")}
               variant="outline"
+              className="w-full sm:w-auto"
             >
               Back Home
             </Button>
@@ -44,19 +45,19 @@ export default function EventsListing() {
           <div className="relative">
             <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
             <Input
-              placeholder="Search events by title, location, or description..."
+              placeholder="Search events..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-11 bg-slate-50 border-slate-200"
+              className="pl-10 h-10 sm:h-11 bg-slate-50 border-slate-200 text-sm"
             />
           </div>
         </div>
       </div>
 
       {/* Events Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Card key={i} className="border-slate-200">
                 <CardHeader>
@@ -71,15 +72,15 @@ export default function EventsListing() {
             ))}
           </div>
         ) : filteredEvents.length === 0 ? (
-          <div className="text-center py-16">
-            <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">No events found</h3>
-            <p className="text-slate-600">
+          <div className="text-center py-12 md:py-16">
+            <Calendar className="w-12 md:w-16 h-12 md:h-16 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">No events found</h3>
+            <p className="text-sm md:text-base text-slate-600">
               {searchQuery ? "Try adjusting your search criteria" : "Check back soon for upcoming events"}
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredEvents.map((event) => {
               const eventDate = new Date(event.date);
               const cutoffDate = new Date(event.registrationCutoffDate);

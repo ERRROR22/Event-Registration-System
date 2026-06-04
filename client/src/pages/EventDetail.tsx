@@ -34,10 +34,10 @@ export default function EventDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 md:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Skeleton className="h-12 w-3/4 mb-4" />
-          <Skeleton className="h-96 w-full" />
+          <Skeleton className="h-10 md:h-12 w-3/4 mb-4" />
+          <Skeleton className="h-64 md:h-96 w-full" />
         </div>
       </div>
     );
@@ -45,11 +45,11 @@ export default function EventDetail() {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 md:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <AlertCircle className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Event not found</h1>
-          <Button onClick={() => setLocation("/events")} className="mt-4">
+          <AlertCircle className="w-12 md:w-16 h-12 md:h-16 text-slate-300 mx-auto mb-4" />
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">Event not found</h1>
+          <Button onClick={() => setLocation("/events")} className="mt-4 w-full sm:w-auto">
             Back to Events
           </Button>
         </div>
@@ -72,11 +72,11 @@ export default function EventDetail() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           <Button
             variant="ghost"
             onClick={() => setLocation("/events")}
-            className="mb-4 text-slate-600"
+            className="mb-4 text-slate-600 px-0"
           >
             ← Back to Events
           </Button>

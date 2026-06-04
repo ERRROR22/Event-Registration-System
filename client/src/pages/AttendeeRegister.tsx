@@ -58,20 +58,20 @@ export default function AttendeeRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-8 md:py-12 px-4">
       <Card className="w-full max-w-md border-slate-200">
         <CardHeader>
-          <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl md:text-2xl">Create Account</CardTitle>
+          <CardDescription className="text-sm md:text-base">
             Register to discover and attend amazing events
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
             {/* Name */}
             <div>
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-sm">Full Name</Label>
               <Input
                 id="name"
                 type="text"
@@ -79,13 +79,13 @@ export default function AttendeeRegister() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 disabled={registerMutation.isPending}
-                className="mt-1"
+                className="mt-1 h-10 md:h-11 text-sm"
               />
             </div>
 
             {/* Email */}
             <div>
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email" className="text-sm">Email Address</Label>
               <Input
                 id="email"
                 type="email"
@@ -93,13 +93,13 @@ export default function AttendeeRegister() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 disabled={registerMutation.isPending}
-                className="mt-1"
+                className="mt-1 h-10 md:h-11 text-sm"
               />
             </div>
 
             {/* Password */}
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -107,14 +107,14 @@ export default function AttendeeRegister() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 disabled={registerMutation.isPending}
-                className="mt-1"
+                className="mt-1 h-10 md:h-11 text-sm"
               />
               <p className="text-xs text-slate-500 mt-1">At least 6 characters</p>
             </div>
 
             {/* Confirm Password */}
             <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-sm">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -122,7 +122,7 @@ export default function AttendeeRegister() {
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 disabled={registerMutation.isPending}
-                className="mt-1"
+                className="mt-1 h-10 md:h-11 text-sm"
               />
             </div>
 
@@ -130,7 +130,7 @@ export default function AttendeeRegister() {
             <Button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 mt-6"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 md:h-11 mt-4 md:mt-6 text-sm md:text-base"
             >
               {registerMutation.isPending ? (
                 <>
@@ -143,7 +143,7 @@ export default function AttendeeRegister() {
             </Button>
 
             {/* Login Link */}
-            <div className="text-center text-sm">
+            <div className="text-center text-xs md:text-sm">
               <span className="text-slate-600">Already have an account? </span>
               <button
                 type="button"
@@ -159,7 +159,7 @@ export default function AttendeeRegister() {
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
-            className="w-full mt-4 text-slate-600"
+            className="w-full mt-3 md:mt-4 text-slate-600 h-10 md:h-11 text-sm"
           >
             Back to Home
           </Button>
