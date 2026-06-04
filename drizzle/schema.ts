@@ -39,6 +39,8 @@ export const events = mysqlTable("events", {
   capacity: int("capacity").notNull(),
   registrationCutoffDate: datetime("registrationCutoffDate").notNull(),
   category: varchar("category", { length: 100 }),
+  imageUrl: varchar("imageUrl", { length: 500 }),
+  imageKey: varchar("imageKey", { length: 255 }),
   isClosed: boolean("isClosed").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -111,6 +113,130 @@ export const registrationsRelations = relations(registrations, ({ one }) => ({
   }),
   attendee: one(attendees, {
     fields: [registrations.attendeeId],
+    references: [attendees.id],
+  }),
+}));
+
+/**
+ * Notifications table - stores email notifications for registrations and reminders
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  attendeeId: int("attendeeId").notNull(),
+  eventId: int("eventId").notNull(),
+  type: mysqlEnum("type", ["registration_confirmation", "event_reminder", "cancellation_confirmation"]).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  sentAt: timestamp("sentAt"),
+  failureReason: text("failureReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+}));
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Event Analytics table - tracks event statistics
+ */
+export const eventAnalytics = mysqlTable("event_analytics", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull().unique(),
+  totalViews: int("totalViews").default(0).notNull(),
+  totalRegistrations: int("totalRegistrations").default(0).notNull(),
+  totalCancellations: int("totalCancellations").default(0).notNull(),
+  conversionRate: varchar("conversionRate", { length: 10 }).default("0%").notNull(),
+  lastUpdated: timestamp("lastUpdated").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+}));
+
+export type EventAnalytic = typeof eventAnalytics.$inferSelect;
+export type InsertEventAnalytic = typeof eventAnalytics.$inferInsert;
+
+/**
+ * Waitlist table - manages attendees waiting for capacity
+ */
+export const waitlist = mysqlTable("waitlist", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  attendeeId: int("attendeeId").notNull(),
+  position: int("position").notNull(),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+  promotedAt: timestamp("promotedAt"),
+}, (table) => ({
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+  uniqueWaitlist: index("unique_waitlist").on(table.eventId, table.attendeeId),
+}));
+
+export type WaitlistEntry = typeof waitlist.$inferSelect;
+export type InsertWaitlistEntry = typeof waitlist.$inferInsert;
+
+/**
+ * Check-in table - tracks attendee check-ins at events
+ */
+export const checkins = mysqlTable("checkins", {
+  id: int("id").autoincrement().primaryKey(),
+  registrationId: int("registrationId").notNull(),
+  eventId: int("eventId").notNull(),
+  attendeeId: int("attendeeId").notNull(),
+  checkedInAt: timestamp("checkedInAt").defaultNow().notNull(),
+}, (table) => ({
+  registrationIdIdx: index("registration_id_idx").on(table.registrationId),
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+}));
+
+export type Checkin = typeof checkins.$inferSelect;
+export type InsertCheckin = typeof checkins.$inferInsert;
+
+/**
+ * Relations for new tables
+ */
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  attendee: one(attendees, {
+    fields: [notifications.attendeeId],
+    references: [attendees.id],
+  }),
+  event: one(events, {
+    fields: [notifications.eventId],
+    references: [events.id],
+  }),
+}));
+
+export const eventAnalyticsRelations = relations(eventAnalytics, ({ one }) => ({
+  event: one(events, {
+    fields: [eventAnalytics.eventId],
+    references: [events.id],
+  }),
+}));
+
+export const waitlistRelations = relations(waitlist, ({ one }) => ({
+  event: one(events, {
+    fields: [waitlist.eventId],
+    references: [events.id],
+  }),
+  attendee: one(attendees, {
+    fields: [waitlist.attendeeId],
+    references: [attendees.id],
+  }),
+}));
+
+export const checkinsRelations = relations(checkins, ({ one }) => ({
+  registration: one(registrations, {
+    fields: [checkins.registrationId],
+    references: [registrations.id],
+  }),
+  event: one(events, {
+    fields: [checkins.eventId],
+    references: [events.id],
+  }),
+  attendee: one(attendees, {
+    fields: [checkins.attendeeId],
     references: [attendees.id],
   }),
 }));

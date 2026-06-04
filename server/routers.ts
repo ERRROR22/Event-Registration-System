@@ -305,6 +305,119 @@ export const appRouter = router({
         return csvContent;
       }),
   }),
+
+  // Analytics Router
+  analytics: router({
+    // Get event analytics (protected)
+    getByEvent: protectedProcedure
+      .input(z.number())
+      .query(async ({ ctx, input }) => {
+        const event = await db.getEventById(input);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        if (event.hostId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        return db.getEventAnalytics(input);
+      }),
+
+    // Track event view (public)
+    trackView: publicProcedure
+      .input(z.number())
+      .mutation(async ({ input }) => {
+        await db.incrementEventViews(input);
+        return { success: true };
+      }),
+  }),
+
+  // Waitlist Router
+  waitlist: router({
+    // Add to waitlist (public)
+    add: publicProcedure
+      .input(z.object({
+        eventId: z.number(),
+        attendeeId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const event = await db.getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+
+        return db.addToWaitlist(input.eventId, input.attendeeId);
+      }),
+
+    // Get waitlist position (public)
+    getPosition: publicProcedure
+      .input(z.object({
+        eventId: z.number(),
+        attendeeId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        return db.getWaitlistPosition(input.eventId, input.attendeeId);
+      }),
+
+    // Get waitlist for event (protected)
+    getByEvent: protectedProcedure
+      .input(z.number())
+      .query(async ({ ctx, input }) => {
+        const event = await db.getEventById(input);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        if (event.hostId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        return db.getWaitlistForEvent(input);
+      }),
+  }),
+
+  // Check-in Router
+  checkins: router({
+    // Create check-in (protected)
+    create: protectedProcedure
+      .input(z.object({
+        registrationId: z.number(),
+        eventId: z.number(),
+        attendeeId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const event = await db.getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        if (event.hostId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        return db.createCheckin(input.registrationId, input.eventId, input.attendeeId);
+      }),
+
+    // Get check-ins by event (protected)
+    getByEvent: protectedProcedure
+      .input(z.number())
+      .query(async ({ ctx, input }) => {
+        const event = await db.getEventById(input);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        if (event.hostId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        return db.getCheckinsByEvent(input);
+      }),
+
+    // Check if attendee checked in (public)
+    hasCheckedIn: publicProcedure
+      .input(z.number())
+      .query(async ({ input }) => {
+        return db.hasAttendeeCheckedIn(input);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

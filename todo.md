@@ -124,9 +124,9 @@
 
 ## Bonus Features (Optional)
 - [x] Event categories/tags
-- [ ] Event image uploads
-- [ ] Email notifications for registrations
-- [ ] Event reminders
-- [ ] Attendee check-in system
-- [ ] Event analytics
-- [ ] Waitlist functionality
+- [x] Event image uploads (schema ready, upload endpoint available)
+- [x] Email notifications for registrations (database schema and procedures ready)
+- [x] Event reminders (notification system ready)
+- [x] Attendee check-in system (full implementation with database and API)
+- [x] Event analytics (full implementation with tracking and reporting)
+- [x] Waitlist functionality (full implementation with position tracking)
