@@ -118,9 +118,9 @@
 - [x] Document environment variables
 - [x] Add API documentation
 - [x] Create deployment guide
-- [ ] Set up CI/CD pipeline
-- [ ] Final code review
-- [ ] Deploy to production
+- [x] Set up CI/CD pipeline
+- [x] Final code review
+- [x] Deploy to production
 
 ## Bonus Features (Optional)
 - [x] Event categories/tags
