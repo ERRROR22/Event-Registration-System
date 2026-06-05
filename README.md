@@ -388,4 +388,5 @@ For issues or questions:
 ---
 
 **Built with ❤️ for the Byamn internship program**
-**Design and Develop by Ritik Sharma**
+
+  **Design and Develop by Ritik Sharma**
