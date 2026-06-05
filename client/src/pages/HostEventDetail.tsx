@@ -39,11 +39,10 @@ export default function HostEventDetail() {
         return;
       }
 
-      const headers = ["Name", "Email", "Registered On"];
+      const headers = ["Name", "Email"];
       const rows = registrations.map((reg) => [
         reg.attendee.name,
         reg.attendee.email,
-        format(new Date(reg.registeredAt), "MMM dd, yyyy"),
       ]);
 
       const csvContent = [
@@ -54,11 +53,11 @@ export default function HostEventDetail() {
       const element = document.createElement("a");
       const file = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       element.href = URL.createObjectURL(file);
-      element.download = `attendees-${event?.title?.replace(/\s+/g, "-")}-${Date.now()}.csv`;
+      element.download = `attendees-${event?.title?.replace(/\s+/g, "-")}.csv`;
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
-      toast.success("CSV exported successfully!");
+      toast.success("Attendee list exported as CSV (Name + Email)");
     } catch (error: any) {
       toast.error(error?.message || "Failed to export CSV");
     }
