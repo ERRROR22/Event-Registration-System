@@ -63,17 +63,17 @@ export default function EditEvent() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 md:py-12 px-4">
         <div className="max-w-2xl mx-auto">
           <Card className="border-slate-200">
             <CardHeader>
-              <Skeleton className="h-8 w-1/2 mb-2" />
+              <Skeleton className="h-8 md:h-10 w-1/2 mb-2" />
               <Skeleton className="h-4 w-3/4" />
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Skeleton className="h-10" />
-              <Skeleton className="h-24" />
-              <Skeleton className="h-10" />
+            <CardContent className="space-y-3 md:space-y-4">
+              <Skeleton className="h-10 md:h-11" />
+              <Skeleton className="h-20 md:h-24" />
+              <Skeleton className="h-10 md:h-11" />
             </CardContent>
           </Card>
         </div>

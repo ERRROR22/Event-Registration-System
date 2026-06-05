@@ -42,16 +42,16 @@ export default function CreateEvent() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-8 md:py-12 px-4">
         <Card className="w-full max-w-md border-slate-200">
           <CardHeader>
-            <CardTitle>Create Event</CardTitle>
-            <CardDescription>Please log in to create an event</CardDescription>
+            <CardTitle className="text-xl md:text-2xl">Create Event</CardTitle>
+            <CardDescription className="text-sm md:text-base">Please log in to create an event</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               onClick={() => window.location.href = getLoginUrl()}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 md:h-11 text-sm md:text-base"
             >
               Login with Manus
             </Button>

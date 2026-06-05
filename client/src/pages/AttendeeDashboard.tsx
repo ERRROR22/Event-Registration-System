@@ -63,18 +63,18 @@ export default function AttendeeDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900">My Events</h1>
-              <p className="text-slate-600 mt-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">My Events</h1>
+              <p className="text-sm sm:text-base text-slate-600 mt-1 md:mt-2">
                 Welcome, {attendeeName ? JSON.parse(attendeeName) : "Attendee"}
               </p>
             </div>
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="text-slate-700"
+              className="text-slate-700 w-full sm:w-auto h-10 md:h-11 text-sm"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
@@ -84,9 +84,9 @@ export default function AttendeeDashboard() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {isLoading ? (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3, 4].map((i) => (
               <Card key={i} className="border-slate-200">
                 <CardHeader>

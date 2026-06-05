@@ -66,10 +66,10 @@ export default function HostEventDetail() {
 
   if (authLoading || eventLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Skeleton className="h-12 w-1/2 mb-8" />
-          <Skeleton className="h-96 w-full" />
+          <Skeleton className="h-10 md:h-12 w-1/2 mb-6 md:mb-8" />
+          <Skeleton className="h-64 md:h-96 w-full" />
         </div>
       </div>
     );
@@ -77,16 +77,16 @@ export default function HostEventDetail() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-8 md:py-12 px-4">
         <Card className="w-full max-w-md border-slate-200">
           <CardHeader>
-            <CardTitle>Event Details</CardTitle>
-            <CardDescription>Please log in to view event details</CardDescription>
+            <CardTitle className="text-xl md:text-2xl">Event Details</CardTitle>
+            <CardDescription className="text-sm md:text-base">Please log in to view event details</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               onClick={() => window.location.href = getLoginUrl()}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 md:h-11 text-sm md:text-base"
             >
               Login with Manus
             </Button>

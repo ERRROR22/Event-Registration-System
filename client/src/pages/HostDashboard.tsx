@@ -46,9 +46,9 @@ export default function HostDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <Skeleton className="h-12 w-1/2 mb-8" />
-          <div className="grid md:grid-cols-2 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <Skeleton className="h-10 md:h-12 w-1/2 mb-6 md:mb-8" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-64" />
             ))}
@@ -60,16 +60,16 @@ export default function HostDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-8 md:py-12 px-4">
         <Card className="w-full max-w-md border-slate-200">
           <CardHeader>
-            <CardTitle>Host Dashboard</CardTitle>
-            <CardDescription>Please log in to access the host dashboard</CardDescription>
+            <CardTitle className="text-xl md:text-2xl">Host Dashboard</CardTitle>
+            <CardDescription className="text-sm md:text-base">Please log in to access the host dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               onClick={() => window.location.href = getLoginUrl()}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 md:h-11 text-sm md:text-base"
             >
               Login with Manus
             </Button>
@@ -91,13 +91,13 @@ export default function HostDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900">Host Dashboard</h1>
-              <p className="text-slate-600 mt-2">Welcome, {user?.name}</p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Host Dashboard</h1>
+              <p className="text-sm sm:text-base text-slate-600 mt-1 md:mt-2">Welcome, {user?.name}</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 onClick={() => setLocation("/")}
                 variant="outline"
