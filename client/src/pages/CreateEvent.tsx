@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import ImageUploadInput from "@/components/ImageUploadInput";
 
 export default function CreateEvent() {
   const { isAuthenticated, loading } = useAuth();
@@ -25,11 +26,39 @@ export default function CreateEvent() {
     registrationCutoffTime: "",
     category: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const uploadImageMutation = trpc.events.uploadImage.useMutation();
 
   const createEventMutation = trpc.events.create.useMutation({
-    onSuccess: (event) => {
-      toast.success("Event created successfully!");
-      setLocation(`/host/dashboard`);
+    onSuccess: async (event) => {
+      if (imageFile) {
+        setIsUploadingImage(true);
+        try {
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const base64 = (e.target?.result as string).split(",")[1];
+            await uploadImageMutation.mutateAsync({
+              eventId: event.id,
+              imageData: base64,
+              fileName: imageFile.name,
+            });
+            toast.success("Event created with banner!");
+            setLocation(`/host/dashboard`);
+          };
+          reader.readAsDataURL(imageFile);
+        } catch (error: any) {
+          toast.error("Event created but image upload failed");
+          setLocation(`/host/dashboard`);
+        } finally {
+          setIsUploadingImage(false);
+        }
+      } else {
+        toast.success("Event created successfully!");
+        setLocation(`/host/dashboard`);
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create event");
@@ -119,162 +148,177 @@ export default function CreateEvent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 md:py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <Card className="border-slate-200">
-          <CardHeader>
-            <CardTitle className="text-3xl">Create New Event</CardTitle>
-            <CardDescription>
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-2xl md:text-3xl">Create New Event</CardTitle>
+            <CardDescription className="text-sm md:text-base">
               Fill in the details below to create your event
             </CardDescription>
           </CardHeader>
-
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Title */}
-              <div>
-                <Label htmlFor="title">Event Title *</Label>
+              {/* Event Title */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium">
+                  Event Title *
+                </Label>
                 <Input
                   id="title"
-                  placeholder="Annual Tech Conference 2026"
+                  type="text"
+                  placeholder="e.g., Tech Conference 2024"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  disabled={createEventMutation.isPending}
-                  className="mt-1"
+                  className="h-10 md:h-11 text-sm md:text-base"
                 />
               </div>
 
               {/* Description */}
-              <div>
-                <Label htmlFor="description">Description</Label>
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-medium">
+                  Description
+                </Label>
                 <Textarea
                   id="description"
-                  placeholder="Tell attendees about your event..."
+                  placeholder="Describe your event..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  disabled={createEventMutation.isPending}
-                  rows={4}
-                  className="mt-1"
+                  className="min-h-24 text-sm md:text-base"
                 />
               </div>
 
+              {/* Event Banner Image */}
+              <ImageUploadInput
+                value={imagePreview || undefined}
+                onChange={setImageFile}
+                onPreviewChange={setImagePreview}
+                disabled={createEventMutation.isPending || isUploadingImage}
+              />
+
               {/* Location */}
-              <div>
-                <Label htmlFor="location">Location *</Label>
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-sm font-medium">
+                  Location *
+                </Label>
                 <Input
                   id="location"
-                  placeholder="San Francisco, CA"
+                  type="text"
+                  placeholder="e.g., San Francisco Convention Center"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  disabled={createEventMutation.isPending}
-                  className="mt-1"
+                  className="h-10 md:h-11 text-sm md:text-base"
                 />
               </div>
 
               {/* Category */}
-              <div>
-                <Label htmlFor="category">Category</Label>
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-sm font-medium">
+                  Category
+                </Label>
                 <Input
                   id="category"
-                  placeholder="e.g., Technology, Business, Music"
+                  type="text"
+                  placeholder="e.g., Technology, Business, Entertainment"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  disabled={createEventMutation.isPending}
-                  className="mt-1"
+                  className="h-10 md:h-11 text-sm md:text-base"
                 />
               </div>
 
-              {/* Date & Time */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="date">Event Date *</Label>
+              {/* Event Date & Time */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="date" className="text-sm font-medium">
+                    Event Date *
+                  </Label>
                   <Input
                     id="date"
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    disabled={createEventMutation.isPending}
-                    className="mt-1"
+                    className="h-10 md:h-11 text-sm md:text-base"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="time">Event Time *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="time" className="text-sm font-medium">
+                    Event Time *
+                  </Label>
                   <Input
                     id="time"
                     type="time"
                     value={formData.time}
                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    disabled={createEventMutation.isPending}
-                    className="mt-1"
+                    className="h-10 md:h-11 text-sm md:text-base"
                   />
                 </div>
               </div>
 
               {/* Capacity */}
-              <div>
-                <Label htmlFor="capacity">Capacity (Max Attendees) *</Label>
+              <div className="space-y-2">
+                <Label htmlFor="capacity" className="text-sm font-medium">
+                  Event Capacity *
+                </Label>
                 <Input
                   id="capacity"
                   type="number"
-                  placeholder="100"
+                  placeholder="e.g., 100"
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                  disabled={createEventMutation.isPending}
-                  className="mt-1"
+                  className="h-10 md:h-11 text-sm md:text-base"
                 />
               </div>
 
               {/* Registration Cutoff */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-semibold text-blue-900 mb-3">Registration Cutoff</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="cutoffDate">Cutoff Date *</Label>
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Registration Cutoff *</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cutoffDate" className="text-xs text-slate-600">
+                      Cutoff Date
+                    </Label>
                     <Input
                       id="cutoffDate"
                       type="date"
                       value={formData.registrationCutoffDate}
                       onChange={(e) => setFormData({ ...formData, registrationCutoffDate: e.target.value })}
-                      disabled={createEventMutation.isPending}
-                      className="mt-1"
+                      className="h-10 md:h-11 text-sm md:text-base"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="cutoffTime">Cutoff Time *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="cutoffTime" className="text-xs text-slate-600">
+                      Cutoff Time
+                    </Label>
                     <Input
                       id="cutoffTime"
                       type="time"
                       value={formData.registrationCutoffTime}
                       onChange={(e) => setFormData({ ...formData, registrationCutoffTime: e.target.value })}
-                      disabled={createEventMutation.isPending}
-                      className="mt-1"
+                      className="h-10 md:h-11 text-sm md:text-base"
                     />
                   </div>
                 </div>
-                <p className="text-xs text-blue-700 mt-2">
-                  Attendees won't be able to register after this date and time
-                </p>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-slate-200">
+              {/* Submit Button */}
+              <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setLocation("/host/dashboard")}
-                  className="flex-1"
+                  className="flex-1 h-10 md:h-11 text-sm md:text-base"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createEventMutation.isPending}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={createEventMutation.isPending || isUploadingImage}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-10 md:h-11 text-sm md:text-base"
                 >
-                  {createEventMutation.isPending ? (
+                  {createEventMutation.isPending || isUploadingImage ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating...
+                      {isUploadingImage ? "Uploading..." : "Creating..."}
                     </>
                   ) : (
                     "Create Event"

@@ -89,6 +89,17 @@ export default function EventDetail() {
         </div>
       </div>
 
+      {/* Banner Image */}
+      {event.imageUrl && (
+        <div className="w-full h-64 md:h-96 bg-slate-200 overflow-hidden">
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid lg:grid-cols-3 gap-8">

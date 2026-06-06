@@ -98,6 +98,8 @@ export async function createEvent(hostId: number, eventData: {
   capacity: number;
   registrationCutoffDate: Date;
   category?: string;
+  imageUrl?: string;
+  imageKey?: string;
 }): Promise<Event> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

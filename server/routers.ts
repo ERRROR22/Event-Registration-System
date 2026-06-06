@@ -6,6 +6,8 @@ import { z } from "zod";
 import * as db from "./db";
 import bcrypt from "bcryptjs";
 import { TRPCError } from "@trpc/server";
+import { storagePut } from "./storage";
+
 
 export const appRouter = router({
   system: systemRouter,
@@ -64,6 +66,8 @@ export const appRouter = router({
         capacity: z.number().int().positive("Capacity must be positive"),
         registrationCutoffDate: z.date(),
         category: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageKey: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (input.registrationCutoffDate >= input.date) {
@@ -90,6 +94,8 @@ export const appRouter = router({
         registrationCutoffDate: z.date().optional(),
         category: z.string().optional(),
         isClosed: z.boolean().optional(),
+        imageUrl: z.string().optional(),
+        imageKey: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const event = await db.getEventById(input.id);
@@ -133,6 +139,41 @@ export const appRouter = router({
         }
 
         return db.updateEvent(input, { isClosed: true });
+      }),
+
+    uploadImage: protectedProcedure
+      .input(z.object({
+        eventId: z.number(),
+        imageData: z.string(),
+        fileName: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const event = await db.getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        if (event.hostId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        try {
+          const buffer = Buffer.from(input.imageData, "base64");
+          const { key, url } = await storagePut(
+            `events/${input.eventId}/banner/${input.fileName}`,
+            buffer,
+            "image/jpeg"
+          );
+
+          return db.updateEvent(input.eventId, {
+            imageUrl: url,
+            imageKey: key,
+          });
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to upload image: ${error.message}`,
+          });
+        }
       }),
   }),
 

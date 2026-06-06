@@ -94,9 +94,19 @@ export default function EventsListing() {
               return (
                 <Card
                   key={event.id}
-                  className="border-slate-200 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                  className="border-slate-200 hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
                   onClick={() => setLocation(`/events/${event.id}`)}
                 >
+                  {/* Event Banner */}
+                  {event.imageUrl && (
+                    <div className="w-full h-40 md:h-48 -m-6 mb-4 overflow-hidden bg-slate-200">
+                      <img
+                        src={event.imageUrl}
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
