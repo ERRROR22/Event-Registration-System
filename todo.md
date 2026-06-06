@@ -207,14 +207,14 @@
 - [x] Generate and apply database migration for image field
 - [x] Create image upload UI component with preview (ImageUploadInput.tsx)
 - [x] Add image upload to CreateEvent page
-- [ ] Add image upload to EditEvent page (ready for implementation)
+- [x] Add image upload to EditEvent page (with image preview)
 - [x] Implement backend image storage procedure (uploadImage mutation)
 - [x] Implement image retrieval and serving (automatic via storagePut)
 - [x] Display event banners on EventsListing page
 - [x] Display event banners on EventDetail page
-- [ ] Display event banners on HostEventDetail page (ready for implementation)
+- [x] Display event banners on HostEventDetail page
 - [x] Add image validation (file type, size) in ImageUploadInput
 - [x] Add image preview before upload
-- [ ] Add image deletion functionality (ready for implementation)
+- [ ] Add image deletion functionality (ready for future enhancement)
 - [x] Test image upload end-to-end (13 tests passing)
 - [x] Optimize image display for mobile (responsive sizing)

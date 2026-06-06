@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2, AlertCircle } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { Skeleton } from "@/components/ui/skeleton";
+import ImageUploadInput from "@/components/ImageUploadInput";
 
 export default function EditEvent() {
   const { id } = useParams<{ id: string }>();
@@ -27,15 +28,43 @@ export default function EditEvent() {
     registrationCutoffTime: "",
     category: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const { data: event, isLoading } = trpc.events.getById.useQuery(parseInt(id || "0"), {
     enabled: !!id,
   });
 
+  const uploadImageMutation = trpc.events.uploadImage.useMutation();
+
   const updateEventMutation = trpc.events.update.useMutation({
-    onSuccess: () => {
-      toast.success("Event updated successfully!");
-      setLocation(`/host/dashboard`);
+    onSuccess: async (updatedEvent) => {
+      if (imageFile && updatedEvent) {
+        setIsUploadingImage(true);
+        try {
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const base64 = (e.target?.result as string).split(",")[1];
+            await uploadImageMutation.mutateAsync({
+              eventId: updatedEvent.id,
+              imageData: base64,
+              fileName: imageFile.name,
+            });
+            toast.success("Event updated with new banner!");
+            setLocation(`/host/dashboard`);
+          };
+          reader.readAsDataURL(imageFile);
+        } catch (error: any) {
+          toast.error("Event updated but image upload failed");
+          setLocation(`/host/dashboard`);
+        } finally {
+          setIsUploadingImage(false);
+        }
+      } else {
+        toast.success("Event updated successfully!");
+        setLocation(`/host/dashboard`);
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to update event");
@@ -213,6 +242,14 @@ export default function EditEvent() {
                   className="mt-1"
                 />
               </div>
+
+              {/* Event Banner Image */}
+              <ImageUploadInput
+                value={imagePreview || event?.imageUrl || undefined}
+                onChange={setImageFile}
+                onPreviewChange={setImagePreview}
+                disabled={updateEventMutation.isPending || isUploadingImage}
+              />
 
               {/* Location */}
               <div>

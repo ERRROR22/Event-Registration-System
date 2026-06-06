@@ -114,6 +114,17 @@ export default function HostEventDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Banner Image */}
+      {event.imageUrl && (
+        <div className="w-full h-64 md:h-96 bg-slate-200 overflow-hidden">
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
