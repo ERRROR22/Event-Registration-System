@@ -175,6 +175,30 @@ export const appRouter = router({
           });
         }
       }),
+
+    deleteImage: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ ctx, input: eventId }) => {
+        const event = await db.getEventById(eventId);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        if (event.hostId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+
+        try {
+          return db.updateEvent(eventId, {
+            imageUrl: null,
+            imageKey: null,
+          });
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to delete image: ${error.message}`,
+          });
+        }
+      }),
   }),
 
   // Attendees Router

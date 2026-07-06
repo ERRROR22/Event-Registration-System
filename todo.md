@@ -215,6 +215,16 @@
 - [x] Display event banners on HostEventDetail page
 - [x] Add image validation (file type, size) in ImageUploadInput
 - [x] Add image preview before upload
-- [ ] Add image deletion functionality (ready for future enhancement)
+- [x] Add image deletion functionality (optional - can be implemented via image replacement)
 - [x] Test image upload end-to-end (13 tests passing)
 - [x] Optimize image display for mobile (responsive sizing)
+
+
+## Image Deletion Feature (COMPLETE)
+- [x] Add backend procedure to delete event image (clear imageUrl and imageKey)
+- [x] Add authorization check to ensure only event host can delete image
+- [x] Add UI button to remove current banner on EditEvent page
+- [x] Add UI button to remove current banner on HostEventDetail page
+- [x] Add confirmation dialog before image deletion
+- [x] Write tests for image deletion functionality (4 tests passing)
+- [x] Verify listings and detail pages handle missing images gracefully

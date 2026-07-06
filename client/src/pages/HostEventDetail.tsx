@@ -27,6 +27,17 @@ export default function HostEventDetail() {
     { enabled: !!id }
   );
 
+  const utils = trpc.useUtils();
+  const deleteImageMutation = trpc.events.deleteImage.useMutation({
+    onSuccess: () => {
+      utils.events.getById.invalidate(parseInt(id || "0"));
+      toast.success("Banner removed successfully");
+    },
+    onError: () => {
+      toast.error("Failed to remove banner");
+    },
+  });
+
   const { data: registrations, isLoading: registrationsLoading } =
     trpc.registrations.getByEvent.useQuery(parseInt(id || "0"), {
       enabled: !!id && isAuthenticated,
@@ -135,7 +146,22 @@ export default function HostEventDetail() {
           >
             ← Back to Dashboard
           </Button>
-          <h1 className="text-4xl font-bold text-slate-900">{event.title}</h1>
+          <div className="flex justify-between items-start">
+            <h1 className="text-4xl font-bold text-slate-900">{event.title}</h1>
+            {event.imageUrl && (
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to remove the event banner?")) {
+                    deleteImageMutation.mutate(event!.id);
+                  }
+                }}
+                disabled={deleteImageMutation.isPending}
+                className="text-sm text-red-600 hover:text-red-700 disabled:opacity-50 px-3 py-1 border border-red-200 rounded"
+              >
+                Remove Banner
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
