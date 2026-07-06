@@ -44,17 +44,22 @@ export default function EditEvent() {
         setIsUploadingImage(true);
         try {
           const reader = new FileReader();
-          reader.onload = async (e) => {
-            const base64 = (e.target?.result as string).split(",")[1];
-            await uploadImageMutation.mutateAsync({
-              eventId: updatedEvent.id,
-              imageData: base64,
-              fileName: imageFile.name,
-            });
-            toast.success("Event updated with new banner!");
-            setLocation(`/host/dashboard`);
-          };
-          reader.readAsDataURL(imageFile);
+          const base64String = await new Promise<string>((resolve, reject) => {
+            reader.onload = (e) => {
+              const result = e.target?.result as string;
+              resolve(result.split(",")[1]);
+            };
+            reader.onerror = () => reject(new Error("Failed to read file"));
+            reader.readAsDataURL(imageFile);
+          });
+
+          await uploadImageMutation.mutateAsync({
+            eventId: updatedEvent.id,
+            imageData: base64String,
+            fileName: imageFile.name,
+          });
+          toast.success("Event updated with new banner!");
+          setLocation(`/host/dashboard`);
         } catch (error: any) {
           toast.error("Event updated but image upload failed");
           setLocation(`/host/dashboard`);

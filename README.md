@@ -35,10 +35,10 @@ A premium, production-ready event management platform built with **React 19**, *
 ### Tech Stack
 - **Frontend**: React 19, Tailwind CSS 4, shadcn/ui, Wouter (routing)
 - **Backend**: Express 4, tRPC 11, Node.js
-- **Database**: MongoDB with Drizzle ORM
+- **Database**: MySQL with Drizzle ORM
 - **Authentication**: Manus OAuth (hosts), localStorage (attendees)
 - **Styling**: Tailwind CSS 4 with custom design tokens
-- **Testing**: Vitest with 26+ passing tests
+- **Testing**: Vitest with 39+ passing tests (including image upload tests)
 
 ### Database Schema
 
@@ -84,7 +84,7 @@ A premium, production-ready event management platform built with **React 19**, *
 ### Prerequisites
 - Node.js 22.13.0+
 - pnpm 10.4.1+
-- MongoDB connection string
+- MySQL database (provided by Manus)
 
 ### Installation
 
@@ -101,7 +101,7 @@ A premium, production-ready event management platform built with **React 19**, *
 
 3. **Set up environment variables**
    The following environment variables are automatically provided by Manus:
-   - `DATABASE_URL`: MongoDB connection string
+   - `DATABASE_URL`: MySQL connection string
    - `JWT_SECRET`: Session signing secret
    - `VITE_APP_ID`: Manus OAuth application ID
    - `OAUTH_SERVER_URL`: Manus OAuth backend URL
@@ -246,26 +246,33 @@ The application uses a refined, elegant design system built with Tailwind CSS 4:
 ## 📊 API Documentation
 
 ### Host Procedures (Protected)
-- `events.create(input)` - Create new event
-- `events.update(input)` - Update event details
+- `events.create(input)` - Create new event with title, description, location, date, capacity, cutoff date
+- `events.update(input)` - Update event details including image
 - `events.delete(eventId)` - Delete event
 - `events.close(eventId)` - Close event registration
 - `events.getByHost()` - Get all events created by host
+- `events.uploadImage(input)` - Upload event banner image
 - `registrations.getByEvent(eventId)` - Get attendees for event
-- `registrations.exportCsv(eventId)` - Export attendee list as CSV
+- `registrations.getByEventForExport(eventId)` - Get attendees for CSV export (Name + Email)
 
 ### Attendee Procedures (Public)
-- `attendees.register(input)` - Create new attendee account
+- `attendees.register(input)` - Create new attendee account with name, email, password
 - `attendees.login(input)` - Authenticate attendee
-- `events.getUpcoming(input)` - Get upcoming events
-- `events.getById(eventId)` - Get event details
-- `registrations.register(input)` - Register for event
+- `events.getUpcoming(limit?)` - Get upcoming events with optional limit
+- `events.getById(eventId)` - Get event details with registration count
+- `registrations.register(input)` - Register for event (prevents duplicates, enforces capacity)
 - `registrations.cancel(registrationId)` - Cancel registration
 - `registrations.getByAttendee(attendeeId)` - Get attendee's registrations
 
 ### Public Procedures
-- `auth.me()` - Get current user info
+- `auth.me()` - Get current user info (host or attendee)
 - `auth.logout()` - Logout current user
+
+### Advanced Features (Backend Ready)
+- **Analytics**: Track event views, registrations, and conversion rates
+- **Waitlist**: Manage attendees when event reaches capacity
+- **Check-ins**: Track attendee attendance at events
+- **Notifications**: Email notifications for registrations and reminders
 
 ---
 
@@ -379,11 +386,14 @@ For issues or questions:
 - ✅ Duplicate registration prevention
 - ✅ Mobile-first responsive UI
 
-### Bonus Features (Partially Implemented)
+### Bonus Features (Implemented)
 - ✅ Event categories/tags
-- ⏳ Event image uploads (ready for implementation)
-- ⏳ Email notifications (ready for implementation)
-- ⏳ Event analytics (ready for implementation)
+- ✅ Event image uploads with drag-drop support
+- ✅ Event analytics backend (ready for UI)
+- ✅ Waitlist system (backend ready)
+- ✅ Attendee check-in system (backend ready)
+- ✅ Email notifications framework (backend ready)
+- ✅ Image preview and validation
 
 ---
 

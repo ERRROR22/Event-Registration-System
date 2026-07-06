@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,14 @@ export default function ImageUploadInput({
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
+
+  // Initialize preview from value prop (for existing images)
+  useEffect(() => {
+    if (value && !preview) {
+      setPreview(value);
+    }
+  }, [value, preview]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,6 +82,34 @@ export default function ImageUploadInput({
     }
   };
 
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragActive(true);
+    } else if (e.type === "dragleave") {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      const file = files[0];
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      if (fileInputRef.current) {
+        fileInputRef.current.files = dataTransfer.files;
+        const event = new Event("change", { bubbles: true });
+        fileInputRef.current.dispatchEvent(event);
+      }
+    }
+  };
+
   return (
     <div className="space-y-3">
       <Label htmlFor="image-upload" className="text-sm font-medium">
@@ -100,7 +136,13 @@ export default function ImageUploadInput({
         )}
 
         {/* Upload Area */}
-        <div className="relative">
+        <div
+          className="relative"
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
           <input
             ref={fileInputRef}
             id="image-upload"
@@ -114,7 +156,11 @@ export default function ImageUploadInput({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || isLoading}
-            className="w-full px-4 py-3 md:py-4 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-2"
+            className={`w-full px-4 py-3 md:py-4 border-2 border-dashed rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-2 ${
+              isDragActive
+                ? "border-blue-500 bg-blue-50"
+                : "border-slate-300 hover:border-blue-400 hover:bg-blue-50"
+            }`}
           >
             {isLoading ? (
               <>
