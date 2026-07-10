@@ -240,3 +240,237 @@ export const checkinsRelations = relations(checkins, ({ one }) => ({
     references: [attendees.id],
   }),
 }));
+
+
+/**
+ * Ticket Pricing table - stores tiered pricing for events (Feature 1)
+ */
+export const ticketPricing = mysqlTable("ticket_pricing", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  tier: mysqlEnum("tier", ["early_bird", "regular", "vip", "group"]).notNull(),
+  price: int("price").notNull(), // in cents
+  quantity: int("quantity").notNull(),
+  quantitySold: int("quantitySold").default(0).notNull(),
+  description: text("description"),
+  validUntil: datetime("validUntil"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+}));
+
+export type TicketPrice = typeof ticketPricing.$inferSelect;
+export type InsertTicketPrice = typeof ticketPricing.$inferInsert;
+
+/**
+ * Event Surveys/Feedback table (Feature 2)
+ */
+export const eventSurveys = mysqlTable("event_surveys", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  attendeeId: int("attendeeId").notNull(),
+  rating: int("rating").notNull(), // 1-5 stars
+  feedback: text("feedback"),
+  npsScore: int("npsScore"), // 0-10
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+}, (table) => ({
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+}));
+
+export type EventSurvey = typeof eventSurveys.$inferSelect;
+export type InsertEventSurvey = typeof eventSurveys.$inferInsert;
+
+/**
+ * Referral System table (Feature 4)
+ */
+export const referrals = mysqlTable("referrals", {
+  id: int("id").autoincrement().primaryKey(),
+  referrerId: int("referrerId").notNull(),
+  referralCode: varchar("referralCode", { length: 50 }).notNull().unique(),
+  eventId: int("eventId").notNull(),
+  successCount: int("successCount").default(0).notNull(),
+  rewardStatus: mysqlEnum("rewardStatus", ["pending", "claimed", "expired"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: datetime("expiresAt"),
+}, (table) => ({
+  referrerIdIdx: index("referrer_id_idx").on(table.referrerId),
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+  codeIdx: index("code_idx").on(table.referralCode),
+}));
+
+export type Referral = typeof referrals.$inferSelect;
+export type InsertReferral = typeof referrals.$inferInsert;
+
+/**
+ * Loyalty Program table (Feature 5)
+ */
+export const loyaltyPoints = mysqlTable("loyalty_points", {
+  id: int("id").autoincrement().primaryKey(),
+  attendeeId: int("attendeeId").notNull().unique(),
+  totalPoints: int("totalPoints").default(0).notNull(),
+  tier: mysqlEnum("tier", ["bronze", "silver", "gold", "platinum"]).default("bronze").notNull(),
+  lastUpdated: timestamp("lastUpdated").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+}));
+
+export type LoyaltyPoints = typeof loyaltyPoints.$inferSelect;
+export type InsertLoyaltyPoints = typeof loyaltyPoints.$inferInsert;
+
+/**
+ * Badges & Achievements table (Feature 6)
+ */
+export const badges = mysqlTable("badges", {
+  id: int("id").autoincrement().primaryKey(),
+  attendeeId: int("attendeeId").notNull(),
+  badgeType: mysqlEnum("badgeType", [
+    "first_event",
+    "five_events",
+    "ten_events",
+    "super_fan",
+    "referral_master",
+    "early_bird",
+    "night_owl",
+    "weekend_warrior"
+  ]).notNull(),
+  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+}, (table) => ({
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+}));
+
+export type Badge = typeof badges.$inferSelect;
+export type InsertBadge = typeof badges.$inferInsert;
+
+/**
+ * Attendee Profiles table - for networking (Feature 8)
+ */
+export const attendeeProfiles = mysqlTable("attendee_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  attendeeId: int("attendeeId").notNull().unique(),
+  bio: text("bio"),
+  interests: text("interests"), // JSON array
+  industry: varchar("industry", { length: 100 }),
+  linkedinUrl: varchar("linkedinUrl", { length: 500 }),
+  twitterUrl: varchar("twitterUrl", { length: 500 }),
+  websiteUrl: varchar("websiteUrl", { length: 500 }),
+  profileImageUrl: varchar("profileImageUrl", { length: 500 }),
+  isPublic: boolean("isPublic").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+}));
+
+export type AttendeeProfile = typeof attendeeProfiles.$inferSelect;
+export type InsertAttendeeProfile = typeof attendeeProfiles.$inferInsert;
+
+/**
+ * Event Recommendations table (Feature 9)
+ */
+export const eventRecommendations = mysqlTable("event_recommendations", {
+  id: int("id").autoincrement().primaryKey(),
+  attendeeId: int("attendeeId").notNull(),
+  eventId: int("eventId").notNull(),
+  score: int("score").notNull(), // 0-100 relevance score
+  reason: varchar("reason", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  attendeeIdIdx: index("attendee_id_idx").on(table.attendeeId),
+  eventIdIdx: index("event_id_idx").on(table.eventId),
+}));
+
+export type EventRecommendation = typeof eventRecommendations.$inferSelect;
+export type InsertEventRecommendation = typeof eventRecommendations.$inferInsert;
+
+/**
+ * Host Verification table (Feature 10)
+ */
+export const hostVerifications = mysqlTable("host_verifications", {
+  id: int("id").autoincrement().primaryKey(),
+  hostId: int("hostId").notNull().unique(),
+  emailVerified: boolean("emailVerified").default(false).notNull(),
+  phoneVerified: boolean("phoneVerified").default(false).notNull(),
+  idVerified: boolean("idVerified").default(false).notNull(),
+  trustScore: int("trustScore").default(0).notNull(), // 0-100
+  totalEventsHosted: int("totalEventsHosted").default(0).notNull(),
+  averageRating: varchar("averageRating", { length: 5 }).default("0.0").notNull(),
+  verifiedAt: timestamp("verifiedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  hostIdIdx: index("host_id_idx").on(table.hostId),
+}));
+
+export type HostVerification = typeof hostVerifications.$inferSelect;
+export type InsertHostVerification = typeof hostVerifications.$inferInsert;
+
+/**
+ * Relations for new tables
+ */
+export const ticketPricingRelations = relations(ticketPricing, ({ one }) => ({
+  event: one(events, {
+    fields: [ticketPricing.eventId],
+    references: [events.id],
+  }),
+}));
+
+export const eventSurveysRelations = relations(eventSurveys, ({ one }) => ({
+  event: one(events, {
+    fields: [eventSurveys.eventId],
+    references: [events.id],
+  }),
+  attendee: one(attendees, {
+    fields: [eventSurveys.attendeeId],
+    references: [attendees.id],
+  }),
+}));
+
+export const referralsRelations = relations(referrals, ({ one }) => ({
+  referrer: one(attendees, {
+    fields: [referrals.referrerId],
+    references: [attendees.id],
+  }),
+  event: one(events, {
+    fields: [referrals.eventId],
+    references: [events.id],
+  }),
+}));
+
+export const loyaltyPointsRelations = relations(loyaltyPoints, ({ one }) => ({
+  attendee: one(attendees, {
+    fields: [loyaltyPoints.attendeeId],
+    references: [attendees.id],
+  }),
+}));
+
+export const badgesRelations = relations(badges, ({ one }) => ({
+  attendee: one(attendees, {
+    fields: [badges.attendeeId],
+    references: [attendees.id],
+  }),
+}));
+
+export const attendeeProfilesRelations = relations(attendeeProfiles, ({ one }) => ({
+  attendee: one(attendees, {
+    fields: [attendeeProfiles.attendeeId],
+    references: [attendees.id],
+  }),
+}));
+
+export const eventRecommendationsRelations = relations(eventRecommendations, ({ one }) => ({
+  attendee: one(attendees, {
+    fields: [eventRecommendations.attendeeId],
+    references: [attendees.id],
+  }),
+  event: one(events, {
+    fields: [eventRecommendations.eventId],
+    references: [events.id],
+  }),
+}));
+
+export const hostVerificationsRelations = relations(hostVerifications, ({ one }) => ({
+  host: one(users, {
+    fields: [hostVerifications.hostId],
+    references: [users.id],
+  }),
+}));

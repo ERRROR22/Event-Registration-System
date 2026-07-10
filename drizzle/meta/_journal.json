@@ -22,6 +22,13 @@
       "when": 1780554980928,
       "tag": "0002_simple_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1783406852757,
+      "tag": "0003_curvy_pyro",
+      "breakpoints": true
     }
   ]
 }

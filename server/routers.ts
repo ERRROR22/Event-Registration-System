@@ -7,6 +7,7 @@ import * as db from "./db";
 import bcrypt from "bcryptjs";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "./storage";
+import { top10Router } from "./routers-top10";
 
 
 export const appRouter = router({
@@ -483,6 +484,9 @@ export const appRouter = router({
         return db.hasAttendeeCheckedIn(input);
       }),
   }),
+
+  // TOP 10 Features
+  ...top10Router,
 });
 
 export type AppRouter = typeof appRouter;

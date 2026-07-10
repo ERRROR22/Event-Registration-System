@@ -1,7 +1,8 @@
 import { eq, and, isNull, count, desc, gte, lte, max } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, events, attendees, registrations, Event, Attendee, Registration, notifications, eventAnalytics, waitlist, checkins } from "../drizzle/schema";
+import { InsertUser, users, events, attendees, registrations, Event, Attendee, Registration, notifications, eventAnalytics, waitlist, checkins, ticketPricing, eventSurveys, referrals, loyaltyPoints, badges, attendeeProfiles, eventRecommendations, hostVerifications } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { avg } from "drizzle-orm";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -512,6 +513,287 @@ export async function hasAttendeeCheckedIn(registrationId: number): Promise<bool
     .limit(1);
 
   return result.length > 0;
+}
+
+
+
+// Ticket Pricing queries (Feature 1)
+export async function createTicketPricing(eventId: number, tier: string, price: number, quantity: number, description?: string, validUntil?: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(ticketPricing).values({
+    eventId,
+    tier: tier as any,
+    price,
+    quantity,
+    description,
+    validUntil,
+  });
+}
+
+export async function getTicketPricingByEvent(eventId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(ticketPricing)
+    .where(eq(ticketPricing.eventId, eventId));
+}
+
+// Event Surveys queries (Feature 2)
+export async function createEventSurvey(eventId: number, attendeeId: number, rating: number, feedback?: string, npsScore?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(eventSurveys).values({
+    eventId,
+    attendeeId,
+    rating,
+    feedback,
+    npsScore,
+  });
+}
+
+export async function getEventSurveys(eventId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(eventSurveys)
+    .where(eq(eventSurveys.eventId, eventId));
+}
+
+export async function getAverageEventRating(eventId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db.select({ avg: avg(eventSurveys.rating) })
+    .from(eventSurveys)
+    .where(eq(eventSurveys.eventId, eventId));
+
+  return result[0]?.avg ? parseFloat(result[0].avg.toString()) : 0;
+}
+
+// Referral queries (Feature 4)
+export async function createReferral(referrerId: number, eventId: number, referralCode: string, expiresAt?: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(referrals).values({
+    referrerId,
+    eventId,
+    referralCode,
+    expiresAt,
+  });
+}
+
+export async function getReferralByCode(referralCode: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(referrals)
+    .where(eq(referrals.referralCode, referralCode))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function incrementReferralCount(referralId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  const referral = await db.select().from(referrals)
+    .where(eq(referrals.id, referralId))
+    .limit(1);
+
+  if (referral[0]) {
+    await db.update(referrals)
+      .set({ successCount: referral[0].successCount + 1 })
+      .where(eq(referrals.id, referralId));
+  }
+}
+
+// Loyalty Points queries (Feature 5)
+export async function getOrCreateLoyaltyPoints(attendeeId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db.select().from(loyaltyPoints)
+    .where(eq(loyaltyPoints.attendeeId, attendeeId))
+    .limit(1);
+
+  if (existing[0]) return existing[0];
+
+  await db.insert(loyaltyPoints).values({
+    attendeeId,
+    totalPoints: 0,
+    tier: "bronze",
+  });
+
+  return db.select().from(loyaltyPoints)
+    .where(eq(loyaltyPoints.attendeeId, attendeeId))
+    .limit(1)
+    .then(r => r[0]);
+}
+
+export async function addLoyaltyPoints(attendeeId: number, points: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  const loyalty = await getOrCreateLoyaltyPoints(attendeeId);
+  if (loyalty) {
+    const newTotal = loyalty.totalPoints + points;
+    let newTier = loyalty.tier;
+    if (newTotal >= 1000) newTier = "platinum";
+    else if (newTotal >= 500) newTier = "gold";
+    else if (newTotal >= 200) newTier = "silver";
+
+    await db.update(loyaltyPoints)
+      .set({ totalPoints: newTotal, tier: newTier as any })
+      .where(eq(loyaltyPoints.attendeeId, attendeeId));
+  }
+}
+
+// Badges queries (Feature 6)
+export async function awardBadge(attendeeId: number, badgeType: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if badge already exists
+  const existing = await db.select().from(badges)
+    .where(and(
+      eq(badges.attendeeId, attendeeId),
+      eq(badges.badgeType, badgeType as any)
+    ))
+    .limit(1);
+
+  if (existing.length > 0) return existing[0];
+
+  return db.insert(badges).values({
+    attendeeId,
+    badgeType: badgeType as any,
+  });
+}
+
+export async function getAttendeeBadges(attendeeId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(badges)
+    .where(eq(badges.attendeeId, attendeeId));
+}
+
+// Attendee Profiles queries (Feature 8)
+export async function getOrCreateAttendeeProfile(attendeeId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db.select().from(attendeeProfiles)
+    .where(eq(attendeeProfiles.attendeeId, attendeeId))
+    .limit(1);
+
+  if (existing[0]) return existing[0];
+
+  await db.insert(attendeeProfiles).values({
+    attendeeId,
+    isPublic: true,
+  });
+
+  return db.select().from(attendeeProfiles)
+    .where(eq(attendeeProfiles.attendeeId, attendeeId))
+    .limit(1)
+    .then(r => r[0]);
+}
+
+export async function updateAttendeeProfile(attendeeId: number, data: any) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.update(attendeeProfiles)
+    .set(data)
+    .where(eq(attendeeProfiles.attendeeId, attendeeId));
+}
+
+export async function getPublicAttendeeProfiles() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(attendeeProfiles)
+    .where(eq(attendeeProfiles.isPublic, true));
+}
+
+// Event Recommendations queries (Feature 9)
+export async function createEventRecommendation(attendeeId: number, eventId: number, score: number, reason?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(eventRecommendations).values({
+    attendeeId,
+    eventId,
+    score,
+    reason,
+  });
+}
+
+export async function getRecommendedEvents(attendeeId: number, limit: number = 5) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(eventRecommendations)
+    .where(eq(eventRecommendations.attendeeId, attendeeId))
+    .orderBy(desc(eventRecommendations.score))
+    .limit(limit);
+}
+
+// Host Verification queries (Feature 10)
+export async function getOrCreateHostVerification(hostId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db.select().from(hostVerifications)
+    .where(eq(hostVerifications.hostId, hostId))
+    .limit(1);
+
+  if (existing[0]) return existing[0];
+
+  await db.insert(hostVerifications).values({
+    hostId,
+    emailVerified: false,
+    phoneVerified: false,
+    idVerified: false,
+    trustScore: 0,
+    totalEventsHosted: 0,
+    averageRating: "0.0",
+  });
+
+  return db.select().from(hostVerifications)
+    .where(eq(hostVerifications.hostId, hostId))
+    .limit(1)
+    .then(r => r[0]);
+}
+
+export async function updateHostVerification(hostId: number, data: any) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.update(hostVerifications)
+    .set(data)
+    .where(eq(hostVerifications.hostId, hostId));
+}
+
+export async function getHostTrustBadge(hostId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const verification = await db.select().from(hostVerifications)
+    .where(eq(hostVerifications.hostId, hostId))
+    .limit(1);
+
+  if (!verification[0]) return undefined;
+
+  const v = verification[0];
+  if (v.idVerified && v.emailVerified) return "verified";
+  if (v.emailVerified) return "email_verified";
+  return undefined;
 }
 
 
