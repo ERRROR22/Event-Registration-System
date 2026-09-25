@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/const";
+import HostVerification from "@/components/HostVerification";
 
 export default function HostDashboard() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -119,6 +120,11 @@ export default function HostDashboard() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {user?.id && (
+          <div className="mb-8 max-w-2xl">
+            <HostVerification hostId={user.id} isOwnProfile />
+          </div>
+        )}
         {isLoading ? (
           <div className="grid md:grid-cols-2 gap-6">
             {[1, 2, 3, 4].map((i) => (

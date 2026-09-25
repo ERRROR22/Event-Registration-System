@@ -271,6 +271,7 @@ export const appRouter = router({
       .input(z.object({
         eventId: z.number(),
         attendeeId: z.number(),
+        referralCode: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const event = await db.getEventById(input.eventId);
@@ -306,7 +307,25 @@ export const appRouter = router({
           });
         }
 
-        return db.registerAttendee(input.eventId, input.attendeeId);
+        const previousRegistrations = await db.getRegistrationsByAttendeeId(input.attendeeId);
+        const registration = await db.registerAttendee(input.eventId, input.attendeeId);
+        await db.updateAnalyticsOnRegistration(input.eventId);
+        await db.addLoyaltyPoints(input.attendeeId, 10);
+        if (previousRegistrations.length === 0) await db.awardBadge(input.attendeeId, "first_event");
+        if (previousRegistrations.length + 1 >= 5) await db.awardBadge(input.attendeeId, "five_events");
+        if (previousRegistrations.length + 1 >= 10) await db.awardBadge(input.attendeeId, "ten_events");
+
+        if (input.referralCode) {
+          const referral = await db.getReferralByCode(input.referralCode);
+          const referralIsValid = referral && referral.eventId === input.eventId && (!referral.expiresAt || referral.expiresAt > now);
+          if (referralIsValid) {
+            await db.incrementReferralCount(referral.id);
+            await db.addLoyaltyPoints(referral.referrerId, 50);
+            await db.awardBadge(referral.referrerId, "referral_master");
+          }
+        }
+
+        return registration;
       }),
 
     // Get registrations by attendee (public)
@@ -459,7 +478,19 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
         }
 
-        return db.createCheckin(input.registrationId, input.eventId, input.attendeeId);
+        const registration = await db.getRegistrationById(input.registrationId);
+        if (!registration || registration.eventId !== input.eventId || registration.attendeeId !== input.attendeeId || registration.cancelledAt) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Registration does not match this event and attendee" });
+        }
+        if (await db.hasAttendeeCheckedIn(input.registrationId)) {
+          throw new TRPCError({ code: "CONFLICT", message: "Attendee is already checked in" });
+        }
+
+        const previousCheckins = await db.getCheckinsByAttendee(input.attendeeId);
+        const checkin = await db.createCheckin(input.registrationId, input.eventId, input.attendeeId);
+        await db.addLoyaltyPoints(input.attendeeId, 20);
+        if (previousCheckins.length + 1 >= 3) await db.awardBadge(input.attendeeId, "super_fan");
+        return checkin;
       }),
 
     // Get check-ins by event (protected)

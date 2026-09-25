@@ -3,7 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Download, AlertCircle, Mail } from "lucide-react";
+import { Calendar, MapPin, Users, Download, AlertCircle, Mail, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,6 +43,16 @@ export default function HostEventDetail() {
     trpc.registrations.getByEvent.useQuery(parseInt(id || "0"), {
       enabled: !!id && isAuthenticated,
     });
+  const { data: checkins, isLoading: checkinsLoading } = trpc.checkins.getByEvent.useQuery(parseInt(id || "0"), {
+    enabled: !!id && isAuthenticated,
+  });
+  const checkInMutation = trpc.checkins.create.useMutation({
+    onSuccess: () => {
+      utils.checkins.getByEvent.invalidate(parseInt(id || "0"));
+      toast.success("Attendee checked in");
+    },
+    onError: (error) => toast.error(error.message || "Unable to check in attendee"),
+  });
 
   const handleExportCsv = async () => {
     try {
@@ -253,6 +263,7 @@ export default function HostEventDetail() {
                           <TableHead>Name</TableHead>
                           <TableHead>Email</TableHead>
                           <TableHead>Registered On</TableHead>
+                          <TableHead>Check-in</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -269,6 +280,20 @@ export default function HostEventDetail() {
                             </TableCell>
                             <TableCell className="text-slate-600">
                               {format(new Date(registration.registeredAt), "MMM dd, yyyy")}
+                            </TableCell>
+                            <TableCell>
+                              {checkins?.some((checkin) => checkin.registrationId === registration.id) ? (
+                                <span className="inline-flex items-center gap-1 text-sm font-medium text-green-700"><CheckCircle2 className="h-4 w-4" /> Checked in</span>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={checkInMutation.isPending || checkinsLoading}
+                                  onClick={() => checkInMutation.mutate({ registrationId: registration.id, eventId: event.id, attendeeId: registration.attendee.id })}
+                                >
+                                  Check in
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}

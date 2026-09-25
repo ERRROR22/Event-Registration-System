@@ -202,6 +202,15 @@ export async function registerAttendee(eventId: number, attendeeId: number): Pro
   return registration[0];
 }
 
+export async function getRegistrationById(registrationId: number): Promise<Registration | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(registrations)
+    .where(eq(registrations.id, registrationId))
+    .limit(1);
+  return result[0];
+}
+
 export async function getRegistrationsByAttendeeId(attendeeId: number): Promise<(Registration & { event: Event })[]> {
   const db = await getDb();
   if (!db) return [];

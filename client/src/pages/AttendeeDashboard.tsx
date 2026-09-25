@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import LoyaltyProgram from "@/components/LoyaltyProgram";
 import EventRecommendations from "@/components/EventRecommendations";
 import ReferralCard from "@/components/ReferralCard";
+import BadgeAchievements from "@/components/BadgeAchievements";
 
 export default function AttendeeDashboard() {
   const [, setLocation] = useLocation();
@@ -101,6 +102,7 @@ export default function AttendeeDashboard() {
             <EventRecommendations attendeeId={attendeeId} />
             <ReferralCard attendeeId={attendeeId} events={(registrations || []).map(({ event }) => ({ id: event.id, title: event.title }))} />
             <LoyaltyProgram attendeeId={attendeeId} />
+            <BadgeAchievements attendeeId={attendeeId} />
           </div>
         )}
         {isLoading ? (

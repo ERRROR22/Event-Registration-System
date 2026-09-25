@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, MapPin, Users, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, AlertCircle, CheckCircle, ShieldCheck } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +34,9 @@ export default function EventDetail() {
 
   const { data: event, isLoading } = trpc.events.getById.useQuery(parseInt(id || "0"), {
     enabled: !!id,
+  });
+  const { data: trustBadge } = trpc.verification.getTrustBadge.useQuery(event?.hostId || 0, {
+    enabled: Boolean(event?.hostId),
   });
   const { data: registrations } = trpc.registrations.getByAttendee.useQuery(
     attendeeId || 0,
@@ -103,6 +106,12 @@ export default function EventDetail() {
             ← Back to Events
           </Button>
           <h1 className="text-4xl font-bold text-slate-900">{event.title}</h1>
+          {trustBadge && (
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-800">
+              <ShieldCheck className="h-4 w-4" />
+              {trustBadge === "verified" ? "Fully verified host" : "Email verified host"}
+            </div>
+          )}
           {event.category && (
             <span className="inline-block mt-3 text-sm font-semibold bg-blue-100 text-blue-700 px-3 py-1 rounded">
               {event.category}

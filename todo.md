@@ -256,10 +256,10 @@
 ### Phase 5: Location & Logistics (14-16)
 - [ ] 14. Venue Management & Mapping
 - [ ] 15. Geolocation-Based Discovery
-- [ ] 16. Advanced Attendee Check-in System
+- [x] 16. Advanced Attendee Check-in System
 
 ### Phase 6: Trust & Safety (17-19)
-- [ ] 17. Verification & Trust Badges
+- [x] 17. Verification & Trust Badges
 - [ ] 18. Fraud Detection & Prevention
 - [ ] 19. Accessibility & Inclusivity Features
 
@@ -269,8 +269,8 @@
 - [ ] 22. Smart Scheduling Suggestions
 
 ### Phase 8: Gamification (23-25)
-- [ ] 23. Loyalty Program with Points
-- [ ] 24. Badges & Achievements System
+- [x] 23. Loyalty Program with Points
+- [x] 24. Badges & Achievements System
 - [ ] 25. Leaderboards & Contests
 
 ### Phase 9: Mobile & UX (26-28)
