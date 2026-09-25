@@ -707,10 +707,13 @@ export async function getOrCreateAttendeeProfile(attendeeId: number) {
 export async function updateAttendeeProfile(attendeeId: number, data: any) {
   const db = await getDb();
   if (!db) return;
-
   await db.update(attendeeProfiles)
     .set(data)
     .where(eq(attendeeProfiles.attendeeId, attendeeId));
+  return db.select().from(attendeeProfiles)
+    .where(eq(attendeeProfiles.attendeeId, attendeeId))
+    .limit(1)
+    .then(r => r[0]);
 }
 
 export async function getPublicAttendeeProfiles() {
@@ -795,5 +798,4 @@ export async function getHostTrustBadge(hostId: number) {
   if (v.emailVerified) return "email_verified";
   return undefined;
 }
-
 

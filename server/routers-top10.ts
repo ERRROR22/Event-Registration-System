@@ -133,7 +133,7 @@ export const top10Router = {
         return db.getOrCreateAttendeeProfile(input);
       }),
 
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         attendeeId: z.number(),
         bio: z.string().optional(),

@@ -13,6 +13,7 @@ import EventsListing from "./pages/EventsListing";
 import AttendeeRegister from "./pages/AttendeeRegister";
 import AttendeeLogin from "./pages/AttendeeLogin";
 import AttendeeDashboard from "./pages/AttendeeDashboard";
+import AttendeeNetworking from "./pages/AttendeeNetworking";
 import HostEventDetail from "./pages/HostEventDetail";
 
 function Router() {
@@ -33,6 +34,7 @@ function Router() {
       <Route path={"/attendee/register"} component={AttendeeRegister} />
       <Route path={"/attendee/login"} component={AttendeeLogin} />
       <Route path={"/attendee/dashboard"} component={AttendeeDashboard} />
+      <Route path={"/attendee/networking"} component={AttendeeNetworking} />
       
       {/* 404 */}
       <Route path={"/404"} component={NotFound} />

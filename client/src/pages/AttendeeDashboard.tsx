@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, MapPin, LogOut, AlertCircle, Trash2 } from "lucide-react";
+import { Calendar, MapPin, LogOut, AlertCircle, Trash2, Users } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -78,6 +78,14 @@ export default function AttendeeDashboard() {
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
+            </Button>
+            <Button
+              onClick={() => setLocation("/attendee/networking")}
+              variant="outline"
+              className="text-blue-700 border-blue-200 hover:bg-blue-50 w-full sm:w-auto h-10 md:h-11 text-sm"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Networking Profile
             </Button>
           </div>
         </div>

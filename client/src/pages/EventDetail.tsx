@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import EventSurvey from "@/components/EventSurvey";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,9 +18,27 @@ export default function EventDetail() {
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
   const [attendeeId, setAttendeeId] = useState<number | null>(null);
 
+  useEffect(() => {
+    const storedAttendeeId = localStorage.getItem("attendeeId");
+    if (!storedAttendeeId) return;
+
+    try {
+      const parsedAttendeeId = Number(JSON.parse(storedAttendeeId));
+      if (Number.isInteger(parsedAttendeeId) && parsedAttendeeId > 0) {
+        setAttendeeId(parsedAttendeeId);
+      }
+    } catch {
+      localStorage.removeItem("attendeeId");
+    }
+  }, []);
+
   const { data: event, isLoading } = trpc.events.getById.useQuery(parseInt(id || "0"), {
     enabled: !!id,
   });
+  const { data: registrations } = trpc.registrations.getByAttendee.useQuery(
+    attendeeId || 0,
+    { enabled: !!attendeeId }
+  );
 
   const registerMutation = trpc.registrations.register.useMutation({
     onSuccess: () => {
@@ -67,6 +86,9 @@ export default function EventDetail() {
   const capacityPercentage = (event.registrationCount / event.capacity) * 100;
 
   const canRegister = !isCutoffPassed && !isEventPassed && !isFull;
+  const isRegisteredAttendee = Boolean(
+    attendeeId && registrations?.some((registration) => registration.event.id === event.id)
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -170,6 +192,13 @@ export default function EventDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {isEventPassed && isRegisteredAttendee && attendeeId && (
+              <EventSurvey
+                eventId={event.id}
+                attendeeId={attendeeId}
+              />
+            )}
           </div>
 
           {/* Sidebar */}
