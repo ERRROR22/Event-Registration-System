@@ -76,6 +76,22 @@ export const top10Router = {
         return db.createReferral(ctx.user.id, input.eventId, code, input.expiresAt);
       }),
 
+    createForAttendee: publicProcedure
+      .input(z.object({
+        attendeeId: z.number().int().positive(),
+        eventId: z.number().int().positive(),
+        expiresAt: z.date().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const attendee = await db.getAttendeeById(input.attendeeId);
+        const event = await db.getEventById(input.eventId);
+        if (!attendee || !event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Attendee or event not found" });
+        }
+        const code = `REF-A${input.attendeeId}-${Date.now()}`;
+        return db.createReferral(input.attendeeId, input.eventId, code, input.expiresAt);
+      }),
+
     getByCode: publicProcedure
       .input(z.string())
       .query(async ({ input }) => {

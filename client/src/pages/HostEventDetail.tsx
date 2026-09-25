@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/const";
+import EventAnalyticsPanel from "@/components/EventAnalyticsPanel";
 import {
   Table,
   TableBody,
@@ -209,6 +210,8 @@ export default function HostEventDetail() {
                 )}
               </CardContent>
             </Card>
+
+            <EventAnalyticsPanel eventId={event.id} />
 
             {/* Attendees List */}
             <Card className="border-slate-200">

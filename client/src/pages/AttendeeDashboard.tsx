@@ -8,6 +8,9 @@ import { Calendar, MapPin, LogOut, AlertCircle, Trash2, Users } from "lucide-rea
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import LoyaltyProgram from "@/components/LoyaltyProgram";
+import EventRecommendations from "@/components/EventRecommendations";
+import ReferralCard from "@/components/ReferralCard";
 
 export default function AttendeeDashboard() {
   const [, setLocation] = useLocation();
@@ -93,6 +96,13 @@ export default function AttendeeDashboard() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        {attendeeId && (
+          <div className="mb-8 grid gap-6 lg:grid-cols-2">
+            <EventRecommendations attendeeId={attendeeId} />
+            <ReferralCard attendeeId={attendeeId} events={(registrations || []).map(({ event }) => ({ id: event.id, title: event.title }))} />
+            <LoyaltyProgram attendeeId={attendeeId} />
+          </div>
+        )}
         {isLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3, 4].map((i) => (

@@ -577,13 +577,16 @@ export async function getAverageEventRating(eventId: number) {
 export async function createReferral(referrerId: number, eventId: number, referralCode: string, expiresAt?: Date) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
-  return db.insert(referrals).values({
+  await db.insert(referrals).values({
     referrerId,
     eventId,
     referralCode,
     expiresAt,
   });
+  return db.select().from(referrals)
+    .where(eq(referrals.referralCode, referralCode))
+    .limit(1)
+    .then(r => r[0]);
 }
 
 export async function getReferralByCode(referralCode: string) {
@@ -798,4 +801,3 @@ export async function getHostTrustBadge(hostId: number) {
   if (v.emailVerified) return "email_verified";
   return undefined;
 }
-
